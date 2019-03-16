@@ -1268,15 +1268,6 @@ def ask(proposition, assumptions=True, context=global_assumptions):
     if local_facts and satisfiable(And(local_facts, known_facts_cnf)) is False:
         raise ValueError("inconsistent assumptions %s" % assumptions)
 
-    # direct resolution method, no logic
-    res = key(expr)._eval_ask(assumptions)
-    if res is not None:
-        return bool(res)
-
-    if local_facts is None:
-        return satask(proposition, assumptions=assumptions, context=context)
-
-
     # See if there's a straight-forward conclusion we can make for the inference
     if local_facts.is_Atom:
         if key in known_facts_dict[local_facts]:
@@ -1300,6 +1291,17 @@ def ask(proposition, assumptions=True, context=global_assumptions):
             isinstance(local_facts, Not) and local_facts.args[0].is_Atom):
         if local_facts.args[0] in known_facts_dict[key]:
             return False
+
+    # direct resolution method, no logic
+    res = key(expr)._eval_ask(assumptions)
+    if res is not None:
+        return bool(res)
+
+    if local_facts is None:
+        return satask(proposition, assumptions=assumptions, context=context)
+
+
+
 
     # Failing all else, we do a full logical inference
     res = ask_full_inference(key, local_facts, known_facts_cnf)
